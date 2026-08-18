@@ -1,0 +1,22 @@
+.gomap-brand {
+  position: fixed;
+  top: 78px;
+  left: 14px;
+  z-index: 900;
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(15px);
+  padding: 8px 13px;
+  border-radius: 13px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.15);
+  font-size: 16px;
+  color: #111;
+}
+
+.gomap-brand span {
+  margin-right: 5px;
+}
+
+body.dark .gomap-brand {
+  background: rgba(30,30,32,.96);
+  color: white;
+}
