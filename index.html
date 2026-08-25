@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <meta
+    name="theme-color"
+    content="#007aff"
+  >
+
+  <meta
+    name="description"
+    content="GoMap - Maps, navigation and places"
+  >
+
+  <title>GoMap — Maps & Navigation</title>
+
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  >
+
+  <style>
+
+    /* =====================================================
+       RESET
+    ===================================================== */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body,
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+      background: #f5f5f7;
+      color: #111;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =====================================================
+       MAP
+    ===================================================== */
+
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* =====================================================
+       GOMAP BRAND
+    ===================================================== */
+
+    .gomap-brand {
+      position: fixed;
+      top: 78px;
+      left: 14px;
+
+      z-index: 900;
+
+      display: flex;
+      align-items: center;
+
+      padding: 8px 13px;
+
+      background: rgba(255, 255, 255, 0.94);
+
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      border-radius: 13px;
+
+      box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.16);
+
+      font-size: 16px;
+    }
+
+    .gomap-brand span {
+      margin-right: 6px;
+    }
+
+    .gomap-brand strong {
+      font-weight: 800;
+    }
+
+    /* =====================================================
+       TOP SEARCH
+    ===================================================== */
+
+    .top-bar {
+      position: fixed;
+
+      top: 14px;
+      left: 12px;
+      right: 12px;
+
+      z-index: 1100;
+
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-box {
+      flex: 1;
+
+      height: 52px;
+
+      display: flex;
+      align-items: center;
+
+      padding: 0 8px 0 14px;
+
+      background: rgba(255, 255, 255, 0.96);
+
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+
+      border-radius: 17px;
+
+      box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .search-icon {
+      font-size: 20px;
+      margin-right: 9px;
+    }
+
+    #searchInput {
+      flex: 1;
+
+      min-width: 0;
+
+      border: 0;
+      outline: 0;
+
+      background: transparent;
+
+      color: #111;
+
+      font-size: 16px;
+    }
+
+    #searchInput::placeholder {
+      color: #777;
+    }
+
+    .search-button {
+      border: 0;
+
+      background: #007aff;
+
+      color: white;
+
+      padding: 8px 11px;
+
+      border-radius: 10px;
+
+      font-weight: 600;
+    }
+
+    .account-button {
+      width: 52px;
+      height: 52px;
+
+      flex-shrink: 0;
+
+      border: 0;
+
+      border-radius: 17px;
+
+      background: white;
+
+      box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.18);
+
+      font-size: 21px;
+    }
+
+    /* =====================================================
+       SEARCH RESULTS
+    ===================================================== */
+
+    .search-results {
+      position: fixed;
+
+      top: 75px;
+      left: 12px;
+      right: 12px;
+
+      z-index: 1500;
+
+      display: none;
+
+      max-height: 50vh;
+
+      overflow-y: auto;
+
+      background: rgba(255, 255, 255, 0.98);
+
+      border-radius: 17px;
+
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.20);
+    }
+
+    .search-result {
+      display: flex;
+      align-items: center;
+
+      gap: 12px;
+
+      padding: 13px;
+
+      border-bottom:
+        1px solid #eeeeee;
+
+      cursor: pointer;
+    }
+
+    .search-result:last-child {
+      border-bottom: 0;
+    }
+
+    .result-icon {
+      width: 42px;
+      height: 42px;
+
+      flex-shrink: 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #eef3ff;
+
+      border-radius: 13px;
+
+      font-size: 21px;
+    }
+
+    .result-title {
+      font-weight: 700;
+
+      margin-bottom: 3px;
+    }
+
+    .result-address {
+      font-size: 12px;
+
+      color: #777;
+
+      line-height: 1.3;
+    }
+
+    /* =====================================================
+       MAP CONTROLS
+    ===================================================== */
+
+    .map-controls {
+      position: fixed;
+
+      right: 12px;
+      bottom: 205px;
+
+      z-index: 1000;
+
+      display: flex;
+      flex-direction: column;
+
+      gap: 9px;
+    }
+
+    .map-control {
+      width: 48px;
+      height: 48px;
+
+      border: 0;
+
+      border-radius: 15px;
+
+      background: rgba(255, 255, 255, 0.96);
+
+      backdrop-filter: blur(16px);
+
+      box-shadow:
+        0 4px 17px rgba(0, 0, 0, 0.18);
+
+      font-size: 21px;
+    }
+
+    .map-control:active,
+    .location-button:active {
+      transform: scale(0.94);
+    }
+
+    /* =====================================================
+       LOCATION BUTTON
+    ===================================================== */
+
+    .location-button {
+      position: fixed;
+
+      right: 12px;
+      bottom: 265px;
+
+      z-index: 1000;
+
+      width: 48px;
+      height: 48px;
+
+      border: 0;
+
+      border-radius: 50%;
+
+      background: white;
+
+      box-shadow:
+        0 4px 17px rgba(0, 0, 0, 0.20);
+
+      font-size: 22px;
+    }
+
+    /* =====================================================
+       ROUTE PANEL
+    ===================================================== */
+
+    .route-panel {
+      position: fixed;
+
+      top: 78px;
+      left: 12px;
+      right: 12px;
+
+      z-index: 1600;
+
+      display: none;
+
+      padding: 15px;
+
+      background: rgba(255, 255, 255, 0.98);
+
+      border-radius: 20px;
+
+      box-shadow:
+        0 9px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .route-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: 12px;
+    }
+
+    .route-header strong {
+      font-size: 18px;
+    }
+
+    .close-button {
+      width: 35px;
+      height: 35px;
+
+      border: 0;
+
+      border-radius: 10px;
+
+      background: #eeeeee;
+
+      font-size: 15px;
+    }
+
+    .route-input {
+      display: flex;
+
+      gap: 8px;
+
+      margin-bottom: 8px;
+    }
+
+    .route-input input {
+      flex: 1;
+
+      min-width: 0;
+
+      height: 42px;
+
+      border: 1px solid #dddddd;
+
+      border-radius: 11px;
+
+      padding: 0 11px;
+
+      outline: none;
+    }
+
+    .route-small-button {
+      width: 45px;
+
+      border: 0;
+
+      border-radius: 11px;
+
+      background: #007aff;
+
+      color: white;
+    }
+
+    .route-modes {
+      display: flex;
+
+      gap: 7px;
+
+      margin-top: 8px;
+    }
+
+    .route-mode {
+      flex: 1;
+
+      height: 38px;
+
+      border: 0;
+
+      border-radius: 10px;
+
+      background: #eeeeee;
+
+      color: #333;
+    }
+
+    .route-mode.active {
+      background: #007aff;
+      color: white;
+    }
+
+    /* =====================================================
+       ROUTE INFORMATION
+    ===================================================== */
+
+    .route-info {
+      position: fixed;
+
+      left: 12px;
+      right: 12px;
+      bottom: 120px;
+
+      z-index: 1200;
+
+      display: none;
+
+      padding: 14px;
+
+      background: rgba(255, 255, 255, 0.98);
+
+      border-radius: 18px;
+
+      box-shadow:
+        0 6px 25px rgba(0, 0, 0, 0.20);
+    }
+
+    .route-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      margin-bottom: 8px;
+    }
+
+    .route-distance {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .route-time {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .route-description {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .instructions {
+      max-height: 145px;
+
+      overflow-y: auto;
+
+      margin-top: 10px;
+
+      border-top:
+        1px solid #eeeeee;
+    }
+
+    .instruction {
+      padding: 9px 0;
+
+      border-bottom:
+        1px solid #eeeeee;
+
+      font-size: 13px;
+    }
+
+    /* =====================================================
+       LAYER PANEL
+    ===================================================== */
+
+    .layer-panel {
+      position: fixed;
+
+      right: 12px;
+      bottom: 320px;
+
+      z-index: 1500;
+
+      width: 190px;
+
+      display: none;
+
+      padding: 7px;
+
+      background: white;
+
+      border-radius: 16px;
+
+      box-shadow:
+        0 7px 25px rgba(0, 0, 0, 0.20);
+    }
+
+    .layer-panel button {
+      width: 100%;
+
+      display: block;
+
+      padding: 11px;
+
+      border: 0;
+
+      border-radius: 9px;
+
+      background: transparent;
+
+      text-align: left;
+    }
+
+    .layer-panel button:hover {
+      background: #eeeeee;
+    }
+
+    /* =====================================================
+       PLACE MARKERS
+    ===================================================== */
+
+    .place-marker {
+      width: 42px;
+      height: 42px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: white;
+
+      border: 3px solid white;
+
+      border-radius: 50%;
+
+      box-shadow:
+        0 3px 13px rgba(0, 0, 0, 0.28);
+
+      font-size: 20px;
+    }
+
+    /* =====================================================
+       BOTTOM SHEET
+    ===================================================== */
+
+    .bottom-sheet {
+      position: fixed;
+
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      z-index: 1100;
+
+      padding:
+        9px
+        13px
+        env(safe-area-inset-bottom);
+
+      background: rgba(255, 255, 255, 0.97);
+
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+
+      border-radius:
+        25px 25px 0 0;
+
+      box-shadow:
+        0 -5px 25px rgba(0, 0, 0, 0.16);
+    }
+
+    .handle {
+      width: 40px;
+      height: 5px;
+
+      margin:
+        2px auto 10px;
+
+      border-radius: 5px;
+
+      background: #bbbbbb;
+    }
+
+    .quick-actions {
+      display: grid;
+
+      grid-template-columns:
+        repeat(5, 1fr);
+
+      gap: 4px;
+    }
+
+    .quick-action {
+      border: 0;
+
+      background: transparent;
+
+      padding: 5px 1px;
+    }
+
+    .quick-icon {
+      width: 42px;
+      height: 42px;
+
+      margin: auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 13px;
+
+      background: #f0f1f3;
+
+      font-size: 20px;
+    }
+
+    .quick-label {
+      font-size: 10px;
+
+      margin-top: 4px;
+    }
+
+    /* =====================================================
+       NAVIGATION
+    ===================================================== */
+
+    .bottom-nav {
+      height: 55px;
+
+      margin-top: 5px;
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, 1fr);
+
+      align-items: center;
+
+      border-top:
+        1px solid #eeeeee;
+    }
+
+    .nav-button {
+      border: 0;
+
+      background: transparent;
+
+      color: #777;
+
+      font-size: 11px;
+    }
+
+    .nav-icon {
+      display: block;
+
+      font-size: 20px;
+
+      margin-bottom: 2px;
+    }
+
+    .nav-button.active {
+      color: #007aff;
+
+      font-weight: 700;
+    }
+
+    /* =====================================================
+       TOAST
+    ===================================================== */
+
+    .toast {
+      position: fixed;
+
+      left: 50%;
+      bottom: 175px;
+
+      z-index: 3000;
+
+      transform:
+        translate(-50%, 20px);
+
+      padding: 10px 15px;
+
+      background:
+        rgba(0, 0, 0, 0.82);
+
+      color: white;
+
+      border-radius: 12px;
+
+      font-size: 13px;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transition: 0.3s;
+    }
+
+    .toast.show {
+      opacity: 1;
+
+      transform:
+        translate(-50%, 0);
+    }
+
+    /* =====================================================
+       DARK MODE
+    ===================================================== */
+
+    body.dark {
+      background: #111111;
+      color: white;
+    }
+
+    body.dark .gomap-brand,
+    body.dark .search-box,
+    body.dark .account-button,
+    body.dark .map-control,
+    body.dark .location-button,
+    body.dark .route-panel,
+    body.dark .route-info,
+    body.dark .search-results,
+    body.dark .layer-panel,
+    body.dark .bottom-sheet {
+      background:
+        rgba(30, 30, 32, 0.97);
+
+      color: white;
+    }
+
+    body.dark #searchInput {
+      color: white;
+    }
+
+    body.dark #searchInput::placeholder {
+      color: #aaa;
+    }
+
+    body.dark .quick-icon {
+      background: #3a3a3c;
+    }
+
+    body.dark .nav-button {
+      color: #aaa;
+    }
+
+    body.dark .nav-button.active {
+      color: #0a84ff;
+    }
+
+    body.dark .search-result {
+      border-color: #444444;
+    }
+
+    body.dark .result-title {
+      color: white;
+    }
+
+    body.dark .result-address {
+      color: #aaaaaa;
+    }
+
+    body.dark .route-input input {
+      background: #222224;
+      color: white;
+      border-color: #444444;
+    }
+
+    /* =====================================================
+       DESKTOP
+    ===================================================== */
+
+    @media (min-width: 800px) {
+
+      .top-bar {
+        left: 25px;
+        right: auto;
+        width: 480px;
+      }
+
+      .search-results {
+        left: 25px;
+        right: auto;
+        width: 480px;
+      }
+
+      .route-panel {
+        left: 25px;
+        right: auto;
+        width: 480px;
+      }
+
+      .route-info {
+        left: 25px;
+        right: auto;
+        width: 440px;
+        bottom: 110px;
+      }
+
+      .bottom-sheet {
+        left: 25px;
+        right: auto;
+        bottom: 20px;
+        width: 450px;
+        border-radius: 22px;
+      }
+
+      .map-controls {
+        right: 25px;
+      }
+
+      .location-button {
+        right: 25px;
+      }
+
+      .gomap-brand {
+        left: 25px;
+      }
+
+      .layer-panel {
+        right: 25px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ===================================================
+       MAP
+  ==================================================== -->
+
+  <div id="map"></div>
+
+
+  <!-- ===================================================
+       GOMAP BRAND
+  ==================================================== -->
+
+  <div class="gomap-brand">
+    <span>🗺️</span>
+    <strong>GoMap</strong>
+  </div>
+
+
+  <!-- ===================================================
+       SEARCH
+  ==================================================== -->
+
+  <div class="top-bar">
+
+    <div class="search-box">
+
+      <span class="search-icon">🔎</span>
+
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search GoMap"
+        autocomplete="off"
+      >
+
+      <button
+        class="search-button"
+        onclick="searchAddress()">
+        Search
+      </button>
+
+    </div>
+
+    <button
+      class="account-button"
+      onclick="showToast('GoMap Account coming soon')">
+      👤
+    </button>
+
+  </div>
+
+
+  <!-- SEARCH RESULTS -->
+
+  <div
+    id="searchResults"
+    class="search-results">
+  </div>
+
+
+  <!-- ===================================================
+       ROUTE PANEL
+  ==================================================== -->
+
+  <div
+    id="routePanel"
+    class="route-panel">
+
+    <div class="route-header">
+
+      <strong>
+        🧭 GoMap Directions
+      </strong>
+
+      <button
+        class="close-button"
+        onclick="closeRoutePanel()">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="route-input">
+
+      <input
+        id="fromInput"
+        type="text"
+        placeholder="Starting point"
+      >
+
+      <button
+        class="route-small-button"
+        onclick="useMyLocationAsStart()">
+        📍
+      </button>
+
+    </div>
+
+
+    <div class="route-input">
+
+      <input
+        id="toInput"
+        type="text"
+        placeholder="Destination"
+      >
+
+      <button
+        class="route-small-button"
+        onclick="searchDestination()">
+        🔎
+      </button>
+
+    </div>
+
+
+    <div class="route-modes">
+
+      <button
+        class="route-mode active"
+        data-mode="driving"
+        onclick="setMode(this)">
+        🚗 Drive
+      </button>
+
+      <button
+        class="route-mode"
+        data-mode="foot"
+        onclick="setMode(this)">
+        🚶 Walk
+      </button>
+
+      <button
+        class="route-mode"
+        data-mode="cycling"
+        onclick="setMode(this)">
+        🚲 Cycle
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       ROUTE INFORMATION
+  ==================================================== -->
+
+  <div
+    id="routeInfo"
+    class="route-info">
+
+    <div class="route-stats">
+
+      <div>
+
+        <div
+          id="routeDistance"
+          class="route-distance">
+          —
+        </div>
+
+        <div class="route-description">
+          Recommended GoMap route
+        </div>
+
+      </div>
+
+      <div
+        id="routeTime"
+        class="route-time">
+        —
+      </div>
+
+    </div>
+
+
+    <div
+      id="instructions"
+      class="instructions">
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       LOCATION
+  ==================================================== -->
+
+  <button
+    class="location-button"
+    onclick="findMyLocation()"
+    title="My location">
+    🎯
+  </button>
+
+
+  <!-- ===================================================
+       MAP CONTROLS
+  ==================================================== -->
+
+  <div class="map-controls">
+
+    <button
+      class="map-control"
+      onclick="toggleLayers()"
+      title="Layers">
+      🗺️
+    </button>
+
+    <button
+      class="map-control"
+      onclick="map.zoomIn()"
+      title="Zoom in">
+      ＋
+    </button>
+
+    <button
+      class="map-control"
+      onclick="map.zoomOut()"
+      title="Zoom out">
+      −
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       LAYER PANEL
+  ==================================================== -->
+
+  <div
+    id="layerPanel"
+    class="layer-panel">
+
+    <button
+      onclick="setMapLayer('standard')">
+      🗺️ Standard
+    </button>
+
+    <button
+      onclick="setMapLayer('satellite')">
+      🛰️ Satellite
+    </button>
+
+    <button
+      onclick="toggleDarkMode()">
+      🌙 Dark Mode
+    </button>
+
+  </div>
+
+
+  <!-- ===================================================
+       TOAST
+  ==================================================== -->
+
+  <div
+    id="toast"
+    class="toast">
+  </div>
+
+
+  <!-- ===================================================
+       BOTTOM SHEET
+  ==================================================== -->
+
+  <div class="bottom-sheet">
+
+    <div class="handle"></div>
+
+
+    <div class="quick-actions">
+
+      <button
+        class="quick-action"
+        onclick="openRoutePanel()">
+
+        <div class="quick-icon">
+          🧭
+        </div>
+
+        <div class="quick-label">
+          Directions
+        </div>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        onclick="findMyLocation()">
+
+        <div class="quick-icon">
+          📍
+        </div>
+
+        <div class="quick-label">
+          Location
+        </div>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        onclick="showAllPlaces()">
+
+        <div class="quick-icon">
+          🏪
+        </div>
+
+        <div class="quick-label">
+          Places
+        </div>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        onclick="showSavedPlaces()">
+
+        <div class="quick-icon">
+          ⭐
+        </div>
+
+        <div class="quick-label">
+          Saved
+        </div>
+
+      </button>
+
+
+      <button
+        class="quick-action"
+        onclick="toggleDarkMode()">
+
+        <div class="quick-icon">
+          🌙
+        </div>
+
+        <div class="quick-label">
+          Theme
+        </div>
+
+      </button>
+
+    </div>
+
+
+    <!-- NAV -->
+
+    <div class="bottom-nav">
+
+      <button
+        class="nav-button active"
+        onclick="goHome(this)">
+
+        <span class="nav-icon">
+          🗺️
+        </span>
+
+        Explore
+
+      </button>
+
+
+      <button
+        class="nav-button"
+        onclick="openRoutePanel()">
+
+        <span class="nav-icon">
+          🧭
+        </span>
+
+        Directions
+
+      </button>
+
+
+      <button
+        class="nav-button"
+        onclick="showSavedPlaces()">
+
+        <span class="nav-icon">
+          ⭐
+        </span>
+
+        Saved
+
+      </button>
+
+
+      <button
+        class="nav-button"
+        onclick="showToast('GoMap Account coming soon')">
+
+        <span class="nav-icon">
+          👤
+        </span>
+
+        Account
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===================================================
+       LEAFLET
+  ==================================================== -->
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin="">
+  </script>
+
+
+  <script>
+
+    /* =====================================================
+       GOMAP CONFIG
+    ===================================================== */
+
+    const GOMAP = {
+
+      name: "GoMap",
+
+      defaultLocation: [
+        52.936,
+        -1.132
+      ],
+
+      defaultZoom: 13,
+
+      searchCountry: "gb"
+
+    };
+
+
+    /* =====================================================
+       MAP INITIALIZATION
+    ===================================================== */
+
+    const map =
+      L.map("map", {
+        zoomControl: false
+      })
+      .setView(
+        GOMAP.defaultLocation,
+        GOMAP.defaultZoom
+      );
+
+
+    /* =====================================================
+       MAP TILES
+    ===================================================== */
+
+    const standardLayer =
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+
+          attribution:
+            '&copy; OpenStreetMap contributors'
+        }
+      )
+      .addTo(map);
+
+
+    const satelliteLayer =
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+
+          attribution:
+            "Tiles &copy; Esri"
+        }
+      );
+
+
+    /* =====================================================
+       PLACES
+    ===================================================== */
+
+    const places = [
+
+      {
+        name: "Nottingham City Centre",
+        lat: 52.9548,
+        lng: -1.1581,
+        icon: "🏙️",
+        type: "City"
+      },
+
+      {
+        name: "West Bridgford",
+        lat: 52.9298,
+        lng: -1.1254,
+        icon: "🏠",
+        type: "Town"
+      },
+
+      {
+        name: "Nottingham Castle",
+        lat: 52.9490,
+        lng: -1.1540,
+        icon: "🏰",
+        type: "Attraction"
+      },
+
+      {
+        name: "Nottingham Station",
+        lat: 52.9477,
+        lng: -1.1462,
+        icon: "🚆",
+        type: "Transport"
+      },
+
+      {
+        name: "Restaurant",
+        lat: 52.9520,
+        lng: -1.1450,
+        icon: "🍔",
+        type: "Food"
+      },
+
+      {
+        name: "Petrol Station",
+        lat: 52.9415,
+        lng: -1.1250,
+        icon: "⛽",
+        type: "Fuel"
+      },
+
+      {
+        name: "Hospital",
+        lat: 52.9435,
+        lng: -1.1850,
+        icon: "🏥",
+        type: "Healthcare"
+      },
+
+      {
+        name: "Shopping Centre",
+        lat: 52.9530,
+        lng: -1.1490,
+        icon: "🛍️",
+        type: "Shopping"
+      },
+
+      {
+        name: "Parking",
+        lat: 52.9500,
+        lng: -1.1520,
+        icon: "🅿️",
+        type: "Parking"
+      },
+
+      {
+        name: "Coffee Shop",
+        lat: 52.9550,
+        lng: -1.1500,
+        icon: "☕",
+        type: "Cafe"
+      }
+
+    ];
+
+
+    /* =====================================================
+       PLACE ICON
+    ===================================================== */
+
+    function createPlaceIcon(emoji) {
+
+      return L.divIcon({
+
+        className: "",
+
+        html:
+          `<div class="place-marker">
+            ${emoji}
+          </div>`,
+
+        iconSize: [
+          42,
+          42
+        ],
+
+        iconAnchor: [
+          21,
+          21
+        ],
+
+        popupAnchor: [
+          0,
+          -20
+        ]
+
+      });
+
+    }
+
+
+    /* =====================================================
+       ADD PLACE MARKERS
+    ===================================================== */
+
+    places.forEach(place => {
+
+      place.marker =
+        L.marker(
+          [
+            place.lat,
+            place.lng
+          ],
+          {
+            icon:
+              createPlaceIcon(
+                place.icon
+              )
+          }
+        )
+        .addTo(map);
+
+
+      place.marker.bindPopup(`
+
+        <div style="min-width:180px">
+
+          <strong>
+            ${place.icon}
+            ${escapeHTML(place.name)}
+          </strong>
+
+          <br>
+
+          <small>
+            ${escapeHTML(place.type)}
+          </small>
+
+          <br><br>
+
+          <button
+            onclick="
+              routeToPlace(
+                ${place.lat},
+                ${place.lng},
+                '${escapeJS(place.name)}'
+              )
+            "
+            style="
+              border:0;
+              background:#007aff;
+              color:white;
+              padding:8px 10px;
+              border-radius:9px;
+            ">
+            🧭 Directions
+          </button>
+
+          <button
+            onclick="
+              savePlace(
+                '${escapeJS(place.name)}'
+              )
+            "
+            style="
+              border:0;
+              background:#eee;
+              padding:8px 10px;
+              border-radius:9px;
+            ">
+            ⭐
+          </button>
+
+        </div>
+
+      `);
+
+    });
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    async function searchAddress() {
+
+      const input =
+        document.getElementById(
+          "searchInput"
+        );
+
+      const query =
+        input.value.trim();
+
+
+      if (!query) {
+
+        showToast(
+          "Enter a place or address"
+        );
+
+        return;
+      }
+
+
+      showToast(
+        "Searching GoMap..."
+      );
+
+
+      try {
+
+        const url =
+          "https://nominatim.openstreetmap.org/search?" +
+          new URLSearchParams({
+
+            q: query,
+
+            format: "jsonv2",
+
+            limit: "5",
+
+            countrycodes:
+              GOMAP.searchCountry
+
+          });
+
+
+        const response =
+          await fetch(url);
+
+
+        if (!response.ok) {
+          throw new Error(
+            "Search request failed"
+          );
+        }
+
+
+        const data =
+          await response.json();
+
+
+        renderSearchResults(data);
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+        showToast(
+          "Search failed"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       SEARCH RESULTS
+    ===================================================== */
+
+    function renderSearchResults(data) {
+
+      const container =
+        document.getElementById(
+          "searchResults"
+        );
+
+
+      container.innerHTML = "";
+
+
+      if (!data.length) {
+
+        container.innerHTML = `
+
+          <div class="search-result">
+
+            <div class="result-icon">
+              🔎
+            </div>
+
+            <div>
+
+              <div class="result-title">
+                No results found
+              </div>
+
+              <div class="result-address">
+                Try another address
+              </div>
+
+            </div>
+
+          </div>
+
+        `;
+
+
+        container.style.display =
+          "block";
+
+        return;
+      }
+
+
+      data.forEach(item => {
+
+        const row =
+          document.createElement(
+            "div"
+          );
+
+
+        row.className =
+          "search-result";
+
+
+        const title =
+          item.display_name
+            .split(",")[0];
+
+
+        row.innerHTML = `
+
+          <div class="result-icon">
+            📍
+          </div>
+
+          <div>
+
+            <div class="result-title">
+              ${escapeHTML(title)}
+            </div>
+
+            <div class="result-address">
+              ${escapeHTML(
+                item.display_name
+              )}
+            </div>
+
+          </div>
+
+        `;
+
+
+        row.onclick = () => {
+
+          const lat =
+            parseFloat(
+              item.lat
+            );
+
+          const lng =
+            parseFloat(
+              item.lon
+            );
+
+
+          map.setView(
+            [
+              lat,
+              lng
+            ],
+            17
+          );
+
+
+          const marker =
+            L.marker(
+              [
+                lat,
+                lng
+              ]
+            )
+            .addTo(map);
+
+
+          marker.bindPopup(`
+            <strong>
+              📍 ${escapeHTML(
+                title
+              )}
+            </strong>
+            <br>
+            <small>
+              ${escapeHTML(
+                item.display_name
+              )}
+            </small>
+          `)
+          .openPopup();
+
+
+          document.getElementById(
+            "searchResults"
+          ).style.display =
+            "none";
+
+
+          document.getElementById(
+            "toInput"
+          ).value =
+            item.display_name;
+
+        };
+
+
+        container.appendChild(
+          row
+        );
+
+      });
+
+
+      container.style.display =
+        "block";
+
+    }
+
+
+    /* =====================================================
+       ROUTING VARIABLES
+    ===================================================== */
+
+    let userPosition = null;
+
+    let destinationPosition = null;
+
+    let userMarker = null;
+
+    let routeLayer = null;
+
+    let selectedMode =
+      "driving";
+
+
+    /* =====================================================
+       OPEN ROUTE PANEL
+    ===================================================== */
+
+    function openRoutePanel() {
+
+      document.getElementById(
+        "routePanel"
+      ).style.display =
+        "block";
+
+    }
+
+
+    function closeRoutePanel() {
+
+      document.getElementById(
+        "routePanel"
+      ).style.display =
+        "none";
+
+    }
+
+
+    /* =====================================================
+       GPS
+    ===================================================== */
+
+    function findMyLocation() {
+
+      if (!navigator.geolocation) {
+
+        showToast(
+          "GPS is not supported"
+        );
+
+        return;
+      }
+
+
+      showToast(
+        "Finding your location..."
+      );
+
+
+      navigator.geolocation.getCurrentPosition(
+
+        position => {
+
+          const lat =
+            position.coords.latitude;
+
+          const lng =
+            position.coords.longitude;
+
+
+          userPosition = {
+
+            lat: lat,
+
+            lng: lng
+
+          };
+
+
+          if (userMarker) {
+
+            map.removeLayer(
+              userMarker
+            );
+
+          }
+
+
+          userMarker =
+            L.circleMarker(
+              [
+                lat,
+                lng
+              ],
+              {
+                radius: 9,
+
+                color: "#ffffff",
+
+                weight: 4,
+
+                fillColor: "#007aff",
+
+                fillOpacity: 1
+              }
+            )
+            .addTo(map);
+
+
+          userMarker.bindPopup(
+            "<strong>📍 You are here</strong>"
+          );
+
+
+          map.setView(
+            [
+              lat,
+              lng
+            ],
+            16
+          );
+
+
+          document.getElementById(
+            "fromInput"
+          ).value =
+            "My location";
+
+
+          showToast(
+            "Location found"
+          );
+
+
+          if (
+            destinationPosition
+          ) {
+
+            calculateRoute();
+
+          }
+
+        },
+
+        error => {
+
+          if (error.code === 1) {
+
+            showToast(
+              "Please allow location access"
+            );
+
+          }
+          else {
+
+            showToast(
+              "Unable to get location"
+            );
+
+          }
+
+        },
+
+        {
+          enableHighAccuracy: true,
+
+          timeout: 12000,
+
+          maximumAge: 5000
+        }
+
+      );
+
+    }
+
+
+    function useMyLocationAsStart() {
+
+      findMyLocation();
+
+    }
+
+
+    /* =====================================================
+       DESTINATION SEARCH
+    ===================================================== */
+
+    async function searchDestination() {
+
+      const input =
+        document.getElementById(
+          "toInput"
+        );
+
+
+      const query =
+        input.value.trim();
+
+
+      if (!query) {
+
+        showToast(
+          "Enter a destination"
+        );
+
+        return;
+      }
+
+
+      showToast(
+        "Finding destination..."
+      );
+
+
+      try {
+
+        const url =
+          "https://nominatim.openstreetmap.org/search?" +
+          new URLSearchParams({
+
+            q: query,
+
+            format: "jsonv2",
+
+            limit: "1",
+
+            countrycodes:
+              GOMAP.searchCountry
+
+          });
+
+
+        const response =
+          await fetch(url);
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.length) {
+
+          showToast(
+            "Destination not found"
+          );
+
+          return;
+        }
+
+
+        destinationPosition = {
+
+          lat:
+            parseFloat(
+              data[0].lat
+            ),
+
+          lng:
+            parseFloat(
+              data[0].lon
+            ),
+
+          name:
+            data[0].display_name
+
+        };
+
+
+        if (!userPosition) {
+
+          findMyLocation();
+
+          return;
+
+        }
+
+
+        calculateRoute();
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+        showToast(
+          "Destination search failed"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       ROUTE TO PLACE
+    ===================================================== */
+
+    function routeToPlace(
+      lat,
+      lng,
+      name
+    ) {
+
+      destinationPosition = {
+
+        lat: lat,
+
+        lng: lng,
+
+        name: name
+
+      };
+
+
+      document.getElementById(
+        "toInput"
+      ).value =
+        name;
+
+
+      openRoutePanel();
+
+
+      if (!userPosition) {
+
+        findMyLocation();
+
+        return;
+
+      }
+
+
+      calculateRoute();
+
+    }
+
+
+    /* =====================================================
+       ROUTE MODE
+    ===================================================== */
+
+    function setMode(button) {
+
+      document
+        .querySelectorAll(
+          ".route-mode"
+        )
+        .forEach(
+          item =>
+            item.classList.remove(
+              "active"
+            )
+        );
+
+
+      button.classList.add(
+        "active"
+      );
+
+
+      selectedMode =
+        button.dataset.mode;
+
+
+      if (
+        destinationPosition &&
+        userPosition
+      ) {
+
+        calculateRoute();
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CALCULATE ROUTE
+    ===================================================== */
+
+    async function calculateRoute() {
+
+      if (!userPosition) {
+
+        showToast(
+          "Getting your location..."
+        );
+
+        findMyLocation();
+
+        return;
+      }
+
+
+      if (!destinationPosition) {
+
+        showToast(
+          "Choose a destination"
+        );
+
+        return;
+      }
+
+
+      showToast(
+        "Calculating GoMap route..."
+      );
+
+
+      const profile =
+        selectedMode;
+
+
+      const url =
+        "https://router.project-osrm.org/route/v1/" +
+        profile +
+        "/" +
+
+        userPosition.lng +
+        "," +
+        userPosition.lat +
+
+        ";" +
+
+        destinationPosition.lng +
+        "," +
+        destinationPosition.lat +
+
+        "?overview=full" +
+        "&geometries=geojson" +
+        "&steps=true" +
+        "&alternatives=true";
+
+
+      try {
+
+        const response =
+          await fetch(url);
+
+
+        const data =
+          await response.json();
+
+
+        if (
+          data.code !== "Ok" ||
+          !data.routes ||
+          !data.routes.length
+        ) {
+
+          showToast(
+            "No route found"
+          );
+
+          return;
+        }
+
+
+        drawRoute(
+          data.routes[0]
+        );
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+        showToast(
+          "Routing service unavailable"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       DRAW ROUTE
+    ===================================================== */
+
+    function drawRoute(route) {
+
+      if (routeLayer) {
+
+        map.removeLayer(
+          routeLayer
+        );
+
+      }
+
+
+      const coordinates =
+        route.geometry.coordinates.map(
+          point => [
+            point[1],
+            point[0]
+          ]
+        );
+
+
+      routeLayer =
+        L.polyline(
+          coordinates,
+          {
+            weight: 7,
+
+            opacity: 0.9
+          }
+        )
+        .addTo(map);
+
+
+      map.fitBounds(
+        routeLayer.getBounds(),
+        {
+          padding: [
+            80,
+            170
+          ]
+        }
+      );
+
+
+      document.getElementById(
+        "routeDistance"
+      ).textContent =
+        formatDistance(
+          route.distance
+        );
+
+
+      document.getElementById(
+        "routeTime"
+      ).textContent =
+        formatDuration(
+          route.duration
+        );
+
+
+      renderInstructions(
+        route.legs
+      );
+
+
+      document.getElementById(
+        "routeInfo"
+      ).style.display =
+        "block";
+
+
+      showToast(
+        "GoMap route ready"
+      );
+
+    }
+
+
+    /* =====================================================
+       DISTANCE
+    ===================================================== */
+
+    function formatDistance(
+      meters
+    ) {
+
+      if (meters < 1000) {
+
+        return (
+          Math.round(meters)
+          + " m"
+        );
+
+      }
+
+
+      return (
+        meters / 1000
+      ).toFixed(1)
+      + " km";
+
+    }
+
+
+    /* =====================================================
+       TIME
+    ===================================================== */
+
+    function formatDuration(
+      seconds
+    ) {
+
+      const minutes =
+        Math.round(
+          seconds / 60
+        );
+
+
+      if (minutes < 60) {
+
+        return (
+          minutes +
+          " min"
+        );
+
+      }
+
+
+      const hours =
+        Math.floor(
+          minutes / 60
+        );
+
+
+      const remaining =
+        minutes % 60;
+
+
+      return (
+        hours +
+        " hr " +
+        remaining +
+        " min"
+      );
+
+    }
+
+
+    /* =====================================================
+       ROUTE INSTRUCTIONS
+    ===================================================== */
+
+    function renderInstructions(
+      legs
+    ) {
+
+      const container =
+        document.getElementById(
+          "instructions"
+        );
+
+
+      container.innerHTML = "";
+
+
+      legs.forEach(
+        leg => {
+
+          leg.steps.forEach(
+            step => {
+
+              const row =
+                document.createElement(
+                  "div"
+                );
+
+
+              row.className =
+                "instruction";
+
+
+              row.textContent =
+                buildInstruction(
+                  step
+                );
+
+
+              container.appendChild(
+                row
+              );
+
+            }
+          );
+
+        }
+      );
+
+    }
+
+
+    function buildInstruction(
+      step
+    ) {
+
+      const maneuver =
+        step.maneuver || {};
+
+
+      const type =
+        maneuver.type || "";
+
+
+      const modifier =
+        maneuver.modifier || "";
+
+
+      let action =
+        "Continue";
+
+
+      if (type === "depart") {
+
+        action =
+          "Start";
+
+      }
+      else if (
+        type === "arrive"
+      ) {
+
+        action =
+          "Arrive at destination";
+
+      }
+      else if (
+        type === "turn"
+      ) {
+
+        if (
+          modifier.includes(
+            "left"
+          )
+        ) {
+
+          action =
+            "Turn left";
+
+        }
+        else if (
+          modifier.includes(
+            "right"
+          )
+        ) {
+
+          action =
+            "Turn right";
+
+        }
+        else {
+
+          action =
+            "Turn";
+
+        }
+
+      }
+      else if (
+        type === "roundabout"
+      ) {
+
+        action =
+          "Enter roundabout";
+
+      }
+      else if (
+        type === "merge"
+      ) {
+
+        action =
+          "Merge";
+
+      }
+      else if (
+        type === "fork"
+      ) {
+
+        action =
+          "Take the fork";
+
+      }
+      else if (
+        type === "on ramp"
+      ) {
+
+        action =
+          "Take ramp";
+
+      }
+      else if (
+        type === "off ramp"
+      ) {
+
+        action =
+          "Take exit";
+
+      }
+
+
+      const road =
+        step.name
+          ? " onto " + step.name
+          : "";
+
+
+      return action + road;
+
+    }
+
+
+    /* =====================================================
+       SAVE PLACE
+    ===================================================== */
+
+    function savePlace(
+      name
+    ) {
+
+      let saved =
+        JSON.parse(
+          localStorage.getItem(
+            "goMapSaved"
+          ) || "[]"
+        );
+
+
+      if (
+        !saved.includes(
+          name
+        )
+      ) {
+
+        saved.push(
+          name
+        );
+
+
+        localStorage.setItem(
+          "goMapSaved",
+          JSON.stringify(
+            saved
+          )
+        );
+
+
+        showToast(
+          "Saved: " + name
+        );
+
+      }
+      else {
+
+        showToast(
+          "Already saved"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       SHOW SAVED
+    ===================================================== */
+
+    function showSavedPlaces() {
+
+      const saved =
+        JSON.parse(
+          localStorage.getItem(
+            "goMapSaved"
+          ) || "[]"
+        );
+
+
+      const matching =
+        places.filter(
+          place =>
+            saved.includes(
+              place.name
+            )
+        );
+
+
+      if (!matching.length) {
+
+        showToast(
+          "No saved places yet"
+        );
+
+        return;
+      }
+
+
+      renderLocalPlaceResults(
+        matching
+      );
+
+    }
+
+
+    /* =====================================================
+       SHOW ALL PLACES
+    ===================================================== */
+
+    function showAllPlaces() {
+
+      renderLocalPlaceResults(
+        places
+      );
+
+    }
+
+
+    /* =====================================================
+       LOCAL PLACE RESULTS
+    ===================================================== */
+
+    function renderLocalPlaceResults(
+      list
+    ) {
+
+      const container =
+        document.getElementById(
+          "searchResults"
+        );
+
+
+      container.innerHTML = "";
+
+
+      list.forEach(
+        place => {
+
+          const row =
+            document.createElement(
+              "div"
+            );
+
+
+          row.className =
+            "search-result";
+
+
+          row.innerHTML = `
+
+            <div class="result-icon">
+              ${place.icon}
+            </div>
+
+            <div>
+
+              <div class="result-title">
+                ${escapeHTML(
+                  place.name
+                )}
+              </div>
+
+              <div class="result-address">
+                ${escapeHTML(
+                  place.type
+                )}
+              </div>
+
+            </div>
+
+          `;
+
+
+          row.onclick = () => {
+
+            map.setView(
+              [
+                place.lat,
+                place.lng
+              ],
+              17
+            );
+
+
+            place.marker.openPopup();
+
+
+            container.style.display =
+              "none";
+
+          };
+
+
+          container.appendChild(
+            row
+          );
+
+        }
+      );
+
+
+      container.style.display =
+        "block";
+
+    }
+
+
+    /* =====================================================
+       MAP LAYERS
+    ===================================================== */
+
+    function toggleLayers() {
+
+      const panel =
+        document.getElementById(
+          "layerPanel"
+        );
+
+
+      panel.style.display =
+        panel.style.display === "block"
+          ? "none"
+          : "block";
+
+    }
+
+
+    function setMapLayer(
+      type
+    ) {
+
+      if (
+        type === "satellite"
+      ) {
+
+        if (
+          map.hasLayer(
+            standardLayer
+          )
+        ) {
+
+          map.removeLayer(
+            standardLayer
+          );
+
+        }
+
+
+        satelliteLayer.addTo(
+          map
+        );
+
+      }
+      else {
+
+        if (
+          map.hasLayer(
+            satelliteLayer
+          )
+        ) {
+
+          map.removeLayer(
+            satelliteLayer
+          );
+
+        }
+
+
+        standardLayer.addTo(
+          map
+        );
+
+      }
+
+
+      document.getElementById(
+        "layerPanel"
+      ).style.display =
+        "none";
+
+    }
+
+
+    /* =====================================================
+       DARK MODE
+    ===================================================== */
+
+    function toggleDarkMode() {
+
+      document.body.classList.toggle(
+        "dark"
+      );
+
+
+      const enabled =
+        document.body.classList.contains(
+          "dark"
+        );
+
+
+      localStorage.setItem(
+        "goMapDark",
+        enabled
+          ? "1"
+          : "0"
+      );
+
+
+      showToast(
+        enabled
+          ? "GoMap dark mode enabled"
+          : "GoMap light mode enabled"
+      );
+
+    }
+
+
+    if (
+      localStorage.getItem(
+        "goMapDark"
+      ) === "1"
+    ) {
+
+      document.body.classList.add(
+        "dark"
+      );
+
+    }
+
+
+    /* =====================================================
+       HOME
+    ===================================================== */
+
+    function goHome(
+      button
+    ) {
+
+      document
+        .querySelectorAll(
+          ".nav-button"
+        )
+        .forEach(
+          item =>
+            item.classList.remove(
+              "active"
+            )
+        );
+
+
+      button.classList.add(
+        "active"
+      );
+
+
+      map.setView(
+        GOMAP.defaultLocation,
+        GOMAP.defaultZoom
+      );
+
+    }
+
+
+    /* =====================================================
+       TOAST
+    ===================================================== */
+
+    let toastTimer;
+
+
+    function showToast(
+      message
+    ) {
+
+      const toast =
+        document.getElementById(
+          "toast"
+        );
+
+
+      toast.textContent =
+        message;
+
+
+      toast.classList.add(
+        "show"
+      );
+
+
+      clearTimeout(
+        toastTimer
+      );
+
+
+      toastTimer =
+        setTimeout(
+          () => {
+
+            toast.classList.remove(
+              "show"
+            );
+
+          },
+          2800
+        );
+
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHTML(
+      value
+    ) {
+
+      return String(value)
+
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
+
+    }
+
+
+    function escapeJS(
+      value
+    ) {
+
+      return String(value)
+        .replaceAll(
+          "\\",
+          "\\\\"
+        )
+        .replaceAll(
+          "'",
+          "\\'"
+        );
+
+    }
+
+
+    /* =====================================================
+       SEARCH ENTER KEY
+    ===================================================== */
+
+    document
+      .getElementById(
+        "searchInput"
+      )
+      .addEventListener(
+        "keydown",
+        event => {
+
+          if (
+            event.key === "Enter"
+          ) {
+
+            searchAddress();
+
+          }
+
+        }
+      );
+
+
+    /* =====================================================
+       CLOSE SEARCH RESULTS
+    ===================================================== */
+
+    map.on(
+      "click",
+      () => {
+
+        document.getElementById(
+          "searchResults"
+        ).style.display =
+          "none";
+
+      }
+    );
+
+
+    /* =====================================================
+       LIVE GPS
+    ===================================================== */
+
+    let gpsWatch = null;
+
+
+    function startLiveGPS() {
+
+      if (
+        !navigator.geolocation
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        gpsWatch !== null
+      ) {
+
+        return;
+
+      }
+
+
+      gpsWatch =
+        navigator.geolocation.watchPosition(
+
+          position => {
+
+            userPosition = {
+
+              lat:
+                position.coords.latitude,
+
+              lng:
+                position.coords.longitude
+
+            };
+
+
+            if (userMarker) {
+
+              userMarker.setLatLng(
+                [
+                  userPosition.lat,
+                  userPosition.lng
+                ]
+              );
+
+            }
+
+          },
+
+          error => {
+
+            console.log(
+              "GoMap GPS:",
+              error.message
+            );
+
+          },
+
+          {
+
+            enableHighAccuracy:
+              true,
+
+            maximumAge:
+              3000,
+
+            timeout:
+              15000
+
+          }
+
+        );
+
+    }
+
+
+    startLiveGPS();
+
+
+    /* =====================================================
+       INITIAL MESSAGE
+    ===================================================== */
+
+    setTimeout(
+      () => {
+
+        showToast(
+          "Welcome to GoMap"
+        );
+
+      },
+      900
+    );
+
+  </script>
+
+</body>
+</html>
